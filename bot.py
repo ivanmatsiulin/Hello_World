@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 
-bot = telebot.TeleBot('2106447395:AAHvy9uUISutb4yvDE-Jrmr6WElfatYRgx8')     # наша переменная с токеном.
+bot = telebot.TeleBot('TOKEN')     # наша переменная с токеном.
 name = ''
 surname = ''
 age = 0
