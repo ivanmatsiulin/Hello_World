@@ -2,9 +2,20 @@ import telebot
 from telebot import types
 import sqlite3
 
-conn = sqlite3.connect('bot.db')
+conn = sqlite3.connect('bot.db', check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS tab_1 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+ name TEXT,surname TEXT,age INT,answer_1 TEXT,answer_2 TEXT,answer_3 TEXT,answer_4 TEXT,answer_5 TEXT,
+    answer_6 TEXT,answer_7 TEXT,answer_8 TEXT,answer_9 TEXT,answer_10 TEXT) ''')
 
-bot = telebot.TeleBot('2106447395:AAHvy9uUISutb4yvDE-Jrmr6WElfatYRgx8')  # наша переменная с токеном.
+config = ''
+with open('config.txt') as f:
+    s = f.readlines()
+    for i in s:
+        config += i
+
+bot = telebot.TeleBot(config)  # наша переменная с токеном.
+
 name = ''
 surname = ''
 age = 0
@@ -18,6 +29,14 @@ ans_7 = ''
 ans_8 = ''
 ans_9 = ''
 ans_10 = ''
+
+
+def db_table_val(name, surname, age, ans_1, ans_2, ans_3, ans_4, ans_5, ans_6, ans_7, ans_8, ans_9, ans_10):
+    # функция для записи данных пользователя
+    cursor.execute('''INSERT INTO tab_1(name, surname, age, answer_1, answer_2, answer_3, answer_4, answer_5,
+     answer_6, answer_7, answer_8, answer_9, answer_10) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                   (name, surname, age, ans_1, ans_2, ans_3, ans_4, ans_5, ans_6, ans_7, ans_8, ans_9, ans_10))
+    conn.commit()
 
 
 @bot.message_handler(commands=['start'])
@@ -50,7 +69,6 @@ def get_name(message):  # получаем Имя
     name = message.text
     bot.send_message(message.from_user.id, 'Какая у тебя фамилия?')
     bot.register_next_step_handler(message, get_surname)
-    print(name)
 
 
 def get_surname(message):  # Получаем Фамилию
@@ -58,7 +76,6 @@ def get_surname(message):  # Получаем Фамилию
     surname = message.text
     bot.send_message(message.from_user.id, 'Сколько тебе лет?')
     bot.register_next_step_handler(message, get_age)
-    print(surname)
 
 
 def get_age(message):  # Получаем Возраст
@@ -69,7 +86,6 @@ def get_age(message):  # Получаем Возраст
         bot.send_message(message.from_user.id, 'Цифрами, пожалуйста')
         bot.send_message(message.from_user.id, 'Сколько тебе лет?')
         bot.register_next_step_handler(message, get_age)
-        print(age)
 
     else:
         keyboard = types.InlineKeyboardMarkup()  # наша клавиатура
@@ -97,25 +113,20 @@ def get_answers_on_questions(message):
     ans_1 = message.text
     bot.send_message(message.from_user.id, 'В целом, как бы Вы оценили мероприятие?')
     bot.register_next_step_handler(message, question_2)
-    print(ans_1)
 
 
-#
 def question_2(message):
     global ans_2
     ans_2 = message.text
     bot.send_message(message.from_user.id, 'Что тебе понравилось на мероприятии?')
     bot.register_next_step_handler(message, question_3)
-    print(ans_2)
 
 
-#
 def question_3(message):
     global ans_3
     ans_3 = message.text
     bot.send_message(message.from_user.id, 'Что тебе НЕ понравилось на мероприятии?')
     bot.register_next_step_handler(message, question_4)
-    print(ans_3)
 
 
 def question_4(message):
@@ -123,43 +134,34 @@ def question_4(message):
     ans_4 = message.text
     bot.send_message(message.from_user.id, 'Как было организовано мероприятие?')
     bot.register_next_step_handler(message, question_5)
-    print(ans_4)
 
 
-#
 def question_5(message):
     global ans_5
     ans_5 = message.text
     bot.send_message(message.from_user.id, 'На сколько персонал был дружелюбен?')
     bot.register_next_step_handler(message, question_6)
-    print(ans_5)
 
 
-#
 def question_6(message):
     global ans_6
     ans_6 = message.text
     bot.send_message(message.from_user.id, 'Был ли персонал Вам полезен?')
     bot.register_next_step_handler(message, question_7)
-    print(ans_6)
 
 
-#
 def question_7(message):
     global ans_7
     ans_7 = message.text
     bot.send_message(message.from_user.id, 'Какой процент нужной информации вы получили на мероприятии?')
     bot.register_next_step_handler(message, question_8)
-    print(ans_7)
 
 
-#
 def question_8(message):
     global ans_8
     ans_8 = message.text
     bot.send_message(message.from_user.id, 'Мероприятие длилось долго или слишком быстро прошло?')
     bot.register_next_step_handler(message, question_9)
-    print(ans_8)
 
 
 def question_9(message):
@@ -167,12 +169,12 @@ def question_9(message):
     ans_9 = message.text
     bot.send_message(message.from_user.id, 'Напишите, что хотите о мероприятии')
     bot.register_next_step_handler(message, question_10)
-    print(ans_9)
+
 
 def question_10(message):
     global ans_10
     ans_10 = message.text
-    print('Переменная ans_10 = ', ans_10)
+    db_table_val(name, surname, age, ans_1, ans_2, ans_3, ans_4, ans_5, ans_6, ans_7, ans_8, ans_9, ans_10)
     bot.send_message(message.chat.id, 'Спасибо, что приняли участие в опросе!\nВсего наилучшего!')
     bot.send_sticker(message.chat.id, 'CAACAgIAAxkBAAEDgMphu5oEwaxeNBpChQIH2C_Xp6Y_YAACJQMAAs-71A5-9qElD4i0vCME')
 
