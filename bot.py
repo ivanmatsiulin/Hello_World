@@ -1,6 +1,7 @@
 import telebot
 from telebot import types
 import sqlite3
+from config import TOKEN
 
 conn = sqlite3.connect('bot.db', check_same_thread=False)
 cursor = conn.cursor()
@@ -8,13 +9,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS tab_1 (id INTEGER PRIMARY KEY AUTOI
  name TEXT,surname TEXT,age INT,answer_1 TEXT,answer_2 TEXT,answer_3 TEXT,answer_4 TEXT,answer_5 TEXT,
     answer_6 TEXT,answer_7 TEXT,answer_8 TEXT,answer_9 TEXT,answer_10 TEXT) ''')
 
-config = ''
-with open('config.txt') as f:
-    s = f.readlines()
-    for i in s:
-        config += i
-
-bot = telebot.TeleBot(config)  # наша переменная с токеном.
+bot = telebot.TeleBot(TOKEN)  # наша переменная с токеном.
 
 name = ''
 surname = ''
