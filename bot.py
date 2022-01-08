@@ -42,8 +42,9 @@ def start_message(message):
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
-    bot.send_message(message.chat.id, "Напиши /reg для регистрации ")
-
+    bot.send_message(message.chat.id, "Данный бот служит для опроса мнений после проведения мероприятия"
+                                      "\nВам предлагается ответить на 10 вопросов, но только после регистрации"
+                                      "\nНапиши / reg для регистрации")
 
 @bot.message_handler(content_types=['text'])
 def start(message):
